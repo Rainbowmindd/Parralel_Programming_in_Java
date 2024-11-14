@@ -12,6 +12,9 @@ public class Watek extends Thread {
     }
 
     public void run() {
+        try{
+            Thread.sleep(30);
+
         synchronized (STATIC_MONITOR) {
             int res = obraz.calculate(character); //count
 
@@ -25,5 +28,9 @@ public class Watek extends Thread {
                 obraz.getHistogramParallel()[cal] = res;
             }
         }
+        }catch (InterruptedException e) {
+                System.out.println("Watek " + index + " zostal przerwany.");
+            }
+
     }
 }

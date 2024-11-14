@@ -15,25 +15,30 @@ public class WatekRunnable implements Runnable {
 
     @Override
     public void run() {
-        synchronized (STATIC_MONITOR) {
-            for (int charCode = start; charCode <= end; charCode++) {
-                char character = (char) charCode;
-                int res = obraz.calculate(character);  // Licz wystąpienia znaku jak w Watek
+        try {
 
-                if (res != 0) {
-                    // Wyświetl wynik jak w Watek
-                    System.out.print("WatekRunnable: "+index+": " + character + " [" + res + "] ");
-                    for (int i = 0; i < res; i++)
-                        System.out.print("=");
+            Thread.sleep(30);
 
-                    System.out.print("\n");
+            synchronized (STATIC_MONITOR) {
+                for (int charCode = start; charCode <= end; charCode++) {
+                    char character = (char) charCode;
+                    int res = obraz.calculate(character);  //zliczanie ile razy pojawil sie znak
 
-                    // Zaktualizuj histogram równoległy
-                    int cal = character - 33;
-                    obraz.getHistogramParallel()[cal] = res;
+                    if (res != 0) {
+                        System.out.print("WatekRunnable: " + index + ": " + character + " [" + res + "] ");
+                        for (int i = 0; i < res; i++)
+                            System.out.print("=");
+
+                        System.out.print("\n");
+
+                        // update histogramu rownoleglebgo
+                        int cal = character - 33;
+                        obraz.getHistogramParallel()[cal] = res;
+                    }
                 }
             }
+        } catch (InterruptedException e) {
+            System.out.println("WatekRunnable " + index + " został przerwany.");
         }
     }
-
 }

@@ -10,18 +10,18 @@ class Histogram_test {
         System.out.println("Set image size: n (#rows), m(#kolumns)");
         int n = scanner.nextInt();
         int m = scanner.nextInt();
-        int size_of_hist=94;
+        int size=94;
 
         System.out.println("Set number of threads");
         int num_threads = scanner.nextInt();
-        size_of_hist=num_threads;
+        size=num_threads;
 
-        //obliczenia rownolegle
+
         Thread[] NewThr = new Thread[num_threads];
 
         Watek[] watek_wariant1=new Watek[num_threads];
 
-        Obraz obraz_1 = new Obraz(n, m,size_of_hist);
+        Obraz obraz_1 = new Obraz(n, m,size);
 
 
         //obliczenie sekwencyjnie
@@ -34,7 +34,7 @@ class Histogram_test {
              (watek_wariant1[i] = new Watek(obraz_1,obraz_1.getSymbol(i),i)).start();
 
              try {
-                 Thread.sleep(30);
+                 Thread.sleep(10);
              }catch (InterruptedException e) {
                  System.out.println(e);
              }
