@@ -12,6 +12,8 @@ class Obraz {
 
     private int[] hist_parallel; //histogram rownolegly
 
+
+
     public Obraz(int n, int m,int histSize) {
         this.histSize=histSize;
         this.size_n = n;
@@ -71,11 +73,11 @@ class Obraz {
 //                for(int k=0;k<10;k++) {
 //                    if(tab[i][j] == tab_symb[k]) histogram[k]++;
                 histogram[(int) tab[i][j] - 33]++;
-                    //if(tab[i][j] == (char)(k+33)) histogram[k]++;
-                }
-
+                //if(tab[i][j] == (char)(k+33)) histogram[k]++;
             }
+
         }
+    }
 
 
     //synchronized-> tylko jeden watek moze uzyskac dostep do tej metody w danym momencie
@@ -109,26 +111,57 @@ class Obraz {
         }
     }
 
+    public synchronized void  calc_watek_runnable(int index,int count){
 
-// uniwersalny wzorzec dla roznych wariantow zrownoleglenia - mozna go modyfikowac dla
-// roznych wersji dekompozycji albo stosowac tak jak jest zapisane ponizej zmieniajac tylko
-// parametry wywolania w watkach
-//
-//calculate_histogram_wzorzec(start_wiersz, end_wiersz, skok_wiersz,
-//                            start_kol, end_kol, skok_kol,
-//                            start_znak, end_znak, skok_znak){
-//
-//  for(int i=start_wiersz;i<end_wiersz;i+=skok_wiersz) {
-//     for(int j=start_kol;j<end_kol;j+=skok_kol) {
-//        for(int k=start_znak;k<end_znak;k+=skok_znak) {
-//           if(tab[i][j] == tab_symb[k]) histogram[k]++;
-//
-    public void print_histogram(){
+        int elem_na_watek = (int) Math.ceil(this.getSizeOfHist() / count);
+        int start = index * elem_na_watek;
+        int end = (index + 1) * elem_na_watek;
+        if (end > this.getSizeOfHist()) end = this.getSizeOfHist();
+        int step = 1;
 
-    for(int i=0;i<94;i++) {
-        System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
-        //System.out.print((char)(i+33)+" "+histogram[i]+"\n");
-     }
+        for (int i = start + 33; i < end + 33; i += step) {
+            char character = (char) i;
+            int res = this.calculate(character);
+
+            if (res != 0) {
+                System.out.print("Watek runnable: " + index + ": " + character + " [" + res + "] ");
+                for (int j = 0; j < res; j++)
+                    System.out.print("=");
+
+                System.out.print("\n");
+                this.print_histogram(index,res);
+                int cal = character - 33;
+                this.getHistogramParallel()[cal] = res;
+            }
+        }
+    }
+
+    public synchronized void calc_watek1(char character,int index){
+        int res = this.calculate(character); //count
+        if (res != 0) {
+            System.out.print("Watek " + index + ": " + character + " [" + res + "] ");
+            for (int i = 0; i < res; i++)
+                System.out.print("=");
+
+            System.out.print("\n");
+            int cal = character - 33;
+            this.getHistogramParallel()[cal] = res;
+        }
+    }
+
+
+    public synchronized void print_histogram(int index, int count){
+
+//        for(int i=0;i<histSize;i++) {
+//            System.out.print(tab_symb[i]+" "+histogram[i]+"\n");
+//
+//            System.out.print("Watek runnable: " + index + ": " + (char)i + " [" + count + "] ");
+//                for (int j = 0; j <count;j++)
+//                    System.out.print("=");
+//
+//                System.out.print("\t");
+//            //System.out.print((char)(i+33)+" "+histogram[i]+"\n");
+//        }
 
     }
 
@@ -157,8 +190,9 @@ class Obraz {
     public char getSymbol(int index) {
         return tab_symb[index];
     }
-
-
+    public int getSizeOfHist(){
+        return histSize;
+    }
     public void compare() {
         System.out.println("Znak  Sekwencyjnie  Równolegle");
         for (int i = 0; i < 94; i++) {
